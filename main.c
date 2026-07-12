@@ -48,16 +48,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
-    SDL_Event event;// anyhting that will occur like an input it will be registered as an event.
-
-    while(running)// to loop the game.
-    {
-        SDL_SetRenderDrawColor(renderer,0,0,0,255);
-        // here these numbers are for RGB and 255 is aplha which means transparency
-        // if alpha is 255 the the color is visible if its 0 then the colour is not visible.
-        SDL_RenderClear(renderer);
-
+   
         SDL_Rect Left_paddle =
         {
             50,
@@ -83,24 +74,65 @@ int main(int argc, char *argv[])
             15,
             15
         };
+       
+
+    int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
+    SDL_Event event;// anyhting that will occur like an input it will be registered as an event.
+
+    while(running)// to loop the game.
+    {
+         SDL_SetRenderDrawColor(renderer,0,0,0,255);
+        // here these numbers are for RGB and 255 is aplha which means transparency
+        // if alpha is 255 the the color is visible if its 0 then the colour is not visible.
+        SDL_RenderClear(renderer);
+       
+        
+        while(SDL_PollEvent(&event))// Checks whether there is an event waititng in Sdl's event queue.
+        // Poll event is similar to scanf waiting for the player to do something.
+        // and if the player does anyhting like press W or quit the game
+        // SDL stores that info in event and then we pass that vale of event here.
+        {
+        
+             if(event.type==SDL_QUIT)
+            {
+                running = 0;
+            }
+            
+            if(event.type == SDL_KEYDOWN)
+            {
+                if(event.key.keysym.sym == SDLK_w && Left_paddle.y>0)
+                {
+                    Left_paddle.y -=10;
+                }
+                else if(event.key.keysym.sym == SDLK_s && Left_paddle.y<475)
+                {
+                    Left_paddle.y +=10;
+                }
+            }
+            if(event.type == SDL_KEYDOWN)
+            {
+                    if(event.key.keysym.sym == SDLK_UP && Right_paddle.y>0)
+                {
+                        Right_paddle.y -=10;
+                }
+                else if(event.key.keysym.sym == SDLK_DOWN && Right_paddle.y<475)
+                {
+                        Right_paddle.y +=10;
+                }
+            }
+
+        }
+        
         SDL_SetRenderDrawColor(renderer,255,255,255,255);
         SDL_RenderFillRect(renderer,&Left_paddle);
         SDL_RenderFillRect(renderer,&Right_paddle);
         SDL_RenderFillRect(renderer,&ball);
         SDL_RenderPresent(renderer);// draws everthing and displays it .
 
-
-
-        while(SDL_PollEvent(&event))// Poll event is like scanf waiting for the player to do something.
-        // and if the player does anyhting like press W or quit the game
-        // SDL stores that info in event and then we pass that vale of event here.
-        {
-            if(event.type==SDL_QUIT)
-            {
-                running = 0;
-            }
-        }
+        
+           
     }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
