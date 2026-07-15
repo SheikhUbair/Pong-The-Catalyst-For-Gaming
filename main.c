@@ -71,9 +71,12 @@ int main(int argc, char *argv[])
         {
             350,
             250,
-            15,
-            15
+            20,
+            20
         };
+
+        int ballVelocityX = 3;
+        int ballVelocityY= 3;
        
 
     int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
@@ -86,6 +89,25 @@ int main(int argc, char *argv[])
         // if alpha is 255 the the color is visible if its 0 then the colour is not visible.
         SDL_RenderClear(renderer);
        
+        ball.x += ballVelocityX;
+        ball.y += ballVelocityY;
+
+        if(ball.y <=0)
+        {
+            ballVelocityY = -ballVelocityY;
+        }
+        if(ball.y >= 580)
+        {
+            ballVelocityY = -ballVelocityY;
+        }
+        if(ball.x <=0)
+        {
+            ballVelocityX = -ballVelocityX;
+        }
+        if(ball.x >=780)
+        {
+            ballVelocityX = -ballVelocityX;
+        }
         
         while(SDL_PollEvent(&event))// Checks whether there is an event waititng in Sdl's event queue.
         // Poll event is similar to scanf waiting for the player to do something.
@@ -97,28 +119,35 @@ int main(int argc, char *argv[])
             {
                 running = 0;
             }
+
+            const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
+            // const means dont modify this data
+            // uint8 a SDL datatype which means Unsigned 8bit integer
+            // *keyboard is a pointer which keybaord points to the first element of an array of Uint8
+            // SDL GET KEYBOARD STATE means give me the current state of every key on the keybaord
+            // which is 0 until a key is pressed and then it becomes 1
+            // bascially these keys are stored in an array
+            // SDL SCANCode gives an index value to each key 
+            // then when u specify a key like W OR S OR UP OR DOWN 
+            // the program finds that key with its index value and checks the state of that key
+            // if its 0 then the key is not pressed and if its 1 then its pressed .
             
-            if(event.type == SDL_KEYDOWN)
+            if(keyboard[SDL_SCANCODE_W] && Left_paddle.y > 0)
             {
-                if(event.key.keysym.sym == SDLK_w && Left_paddle.y>0)
-                {
-                    Left_paddle.y -=10;
-                }
-                else if(event.key.keysym.sym == SDLK_s && Left_paddle.y<475)
-                {
-                    Left_paddle.y +=10;
-                }
+                Left_paddle.y -= 10;
             }
-            if(event.type == SDL_KEYDOWN)
+            if(keyboard[SDL_SCANCODE_S] && Left_paddle.y < 475)
             {
-                    if(event.key.keysym.sym == SDLK_UP && Right_paddle.y>0)
-                {
-                        Right_paddle.y -=10;
-                }
-                else if(event.key.keysym.sym == SDLK_DOWN && Right_paddle.y<475)
-                {
-                        Right_paddle.y +=10;
-                }
+                Left_paddle.y += 10;
+            }
+
+            if(keyboard[SDL_SCANCODE_UP] && Right_paddle.y > 0)
+            {
+                Right_paddle.y -= 10;
+            }
+            if(keyboard[SDL_SCANCODE_DOWN] && Right_paddle.y < 475)
+            {
+                Right_paddle.y += 10;
             }
 
         }
@@ -128,6 +157,7 @@ int main(int argc, char *argv[])
         SDL_RenderFillRect(renderer,&Right_paddle);
         SDL_RenderFillRect(renderer,&ball);
         SDL_RenderPresent(renderer);// draws everthing and displays it .
+        SDL_Delay(16);// control frame rate
 
         
            
