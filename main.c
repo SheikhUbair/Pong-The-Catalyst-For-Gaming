@@ -77,8 +77,7 @@ int main(int argc, char *argv[])
 
         int ballVelocityX = 3;
         int ballVelocityY= 3;
-       
-
+        
     int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
     SDL_Event event;// anyhting that will occur like an input it will be registered as an event.
 
@@ -89,25 +88,7 @@ int main(int argc, char *argv[])
         // if alpha is 255 the the color is visible if its 0 then the colour is not visible.
         SDL_RenderClear(renderer);
        
-        ball.x += ballVelocityX;
-        ball.y += ballVelocityY;
-
-        if(ball.y <=0)
-        {
-            ballVelocityY = -ballVelocityY;
-        }
-        if(ball.y >= 580)
-        {
-            ballVelocityY = -ballVelocityY;
-        }
-        if(ball.x <=0)
-        {
-            ballVelocityX = -ballVelocityX;
-        }
-        if(ball.x >=780)
-        {
-            ballVelocityX = -ballVelocityX;
-        }
+       
         
         while(SDL_PollEvent(&event))// Checks whether there is an event waititng in Sdl's event queue.
         // Poll event is similar to scanf waiting for the player to do something.
@@ -151,6 +132,66 @@ int main(int argc, char *argv[])
             }
 
         }
+
+        
+        ball.x += ballVelocityX;
+        ball.y += ballVelocityY;
+
+
+        // Left Paddle Hitbox
+        int Left_paddleLeft = Left_paddle.x;
+        int Left_paddleRight = Left_paddle.x + Left_paddle.w;
+        int Left_paddleTop = Left_paddle.y;
+        int Left_paddleBottom = Left_paddle.y + Left_paddle.h;
+
+        // Right paddle hitbox
+        int Right_paddleLeft = Right_paddle.x;
+        int Right_paddleRight = Right_paddle.x + Right_paddle.w;
+        int Right_paddleTop = Right_paddle.y;
+        int Right_paddleBottom = Right_paddle.y + Right_paddle.h;
+
+        // Ball hitbox
+
+        int ballLeft = ball.x;
+        int ballRight = ball.x + ball.w;
+        int ballTop = ball.y;
+        int ballBottom = ball.y + ball.h;
+
+
+        if(ball.y <=0)
+        {
+            ballVelocityY = -ballVelocityY;
+        }
+        if(ball.y >= 580)
+        {
+            ballVelocityY = -ballVelocityY;
+        }
+        if(ball.x <=0)
+        {
+            ballVelocityX = -ballVelocityX;
+        }
+        if(ball.x >=780)
+        {
+            ballVelocityX = -ballVelocityX;
+        }
+
+        if(ballLeft <= Left_paddleRight)
+        {
+            if(ballBottom >= Left_paddleTop && ballTop <= Left_paddleBottom)
+            {
+                ball.x = Left_paddleRight;
+                ballVelocityX = -ballVelocityX;
+            }
+        }
+        if(ballRight >= Right_paddleLeft)
+        {
+            if(ballBottom >= Right_paddleTop && ballTop <= Right_paddleBottom)
+            {
+                ball.x = Right_paddleLeft - ball.w;
+                ballVelocityX = -ballVelocityX;
+            }
+        }
+
         
         SDL_SetRenderDrawColor(renderer,255,255,255,255);
         SDL_RenderFillRect(renderer,&Left_paddle);
