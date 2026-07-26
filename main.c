@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 //argc stands for argument count Example .\pong easy then argc = 2. tells u how many arguemnts were passed.
@@ -75,10 +76,12 @@ int main(int argc, char *argv[])
             20
         };
 
-        int ballVelocityX = 3;
-        int ballVelocityY= 3;
+
+        int ballVelocityX = 1;
+        int ballVelocityY= 1;
         
     int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
+    int gameState = 0; // gamestate .
     SDL_Event event;// anyhting that will occur like an input it will be registered as an event.
 
     while(running)// to loop the game.
@@ -101,6 +104,38 @@ int main(int argc, char *argv[])
                 running = 0;
             }
 
+            if(event.type == SDL_KEYDOWN)
+            {
+                if(gameState == 0 && event.key.keysym.sym == SDLK_RETURN)
+                {
+                    gameState = 1; // playing or draw game
+                }
+            }
+            if(event.type ==SDL_KEYDOWN)
+            {
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    if(gameState == 1)
+                    {
+                        gameState = 2 ; // game paused
+                    }
+                    else if(gameState == 2)
+                    {
+                        gameState = 1;
+                    }
+                }
+                if(gameState == 2 && event.key.keysym.sym == SDLK_BACKSPACE) // to reset the game.
+                {
+                        gameState == 0;
+                }
+            }
+        }
+
+            
+
+
+        if(gameState==1)
+        {
             const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
             // const means dont modify this data
             // uint8 a SDL datatype which means Unsigned 8bit integer
@@ -131,72 +166,110 @@ int main(int argc, char *argv[])
                 Right_paddle.y += 10;
             }
 
-        }
-
+            ball.x += ballVelocityX;
+            ball.y += ballVelocityY;
         
-        ball.x += ballVelocityX;
-        ball.y += ballVelocityY;
+            // Left Paddle Hitbox
+            int Left_paddleLeft = Left_paddle.x;
+            int Left_paddleRight = Left_paddle.x + Left_paddle.w;
+            int Left_paddleTop = Left_paddle.y;
+            int Left_paddleBottom = Left_paddle.y + Left_paddle.h;
 
+            // Right paddle hitbox
+            int Right_paddleLeft = Right_paddle.x;
+            int Right_paddleRight = Right_paddle.x + Right_paddle.w;
+            int Right_paddleTop = Right_paddle.y;
+            int Right_paddleBottom = Right_paddle.y + Right_paddle.h;
 
-        // Left Paddle Hitbox
-        int Left_paddleLeft = Left_paddle.x;
-        int Left_paddleRight = Left_paddle.x + Left_paddle.w;
-        int Left_paddleTop = Left_paddle.y;
-        int Left_paddleBottom = Left_paddle.y + Left_paddle.h;
-
-        // Right paddle hitbox
-        int Right_paddleLeft = Right_paddle.x;
-        int Right_paddleRight = Right_paddle.x + Right_paddle.w;
-        int Right_paddleTop = Right_paddle.y;
-        int Right_paddleBottom = Right_paddle.y + Right_paddle.h;
-
-        // Ball hitbox
-
-        int ballLeft = ball.x;
-        int ballRight = ball.x + ball.w;
-        int ballTop = ball.y;
-        int ballBottom = ball.y + ball.h;
-
-
-        if(ball.y <=0)
-        {
+            // Ball hitbox
+            int ballLeft = ball.x;
+            int ballRight = ball.x + ball.w;
+            int ballTop = ball.y;
+            int ballBottom = ball.y + ball.h;
+            
+            // Wall Collision
+             if(ball.y <=0)
+            {
+            ball.y=0;
             ballVelocityY = -ballVelocityY;
-        }
-        if(ball.y >= 580)
-        {
+            }
+        
+            if(ball.y >= 580)
+            {
+            ball.y=580;
             ballVelocityY = -ballVelocityY;
-        }
-        if(ball.x <=0)
-        {
-            ballVelocityX = -ballVelocityX;
-        }
-        if(ball.x >=780)
-        {
-            ballVelocityX = -ballVelocityX;
-        }
+            }
 
-        if(ballLeft <= Left_paddleRight)
-        {
-            if(ballBottom >= Left_paddleTop && ballTop <= Left_paddleBottom)
+            // Paddle Collision
+
+            if(ballRight >= Left_paddleLeft 
+            && ballLeft <= Left_paddleRight 
+            && ballBottom >= Left_paddleTop 
+            && ballTop <= Left_paddleBottom)
             {
                 ball.x = Left_paddleRight;
                 ballVelocityX = -ballVelocityX;
             }
-        }
-        if(ballRight >= Right_paddleLeft)
-        {
-            if(ballBottom >= Right_paddleTop && ballTop <= Right_paddleBottom)
+
+            if( ballLeft <= Right_paddleRight
+            && ballRight >= Right_paddleLeft 
+            && ballBottom >= Right_paddleTop 
+            && ballTop <= Right_paddleBottom)
             {
                 ball.x = Right_paddleLeft - ball.w;
                 ballVelocityX = -ballVelocityX;
             }
+
         }
+        
 
         
         SDL_SetRenderDrawColor(renderer,255,255,255,255);
-        SDL_RenderFillRect(renderer,&Left_paddle);
-        SDL_RenderFillRect(renderer,&Right_paddle);
-        SDL_RenderFillRect(renderer,&ball);
+
+        if(gameState == 0 )
+        {
+            SDL_Rect menubox =
+            {
+                200,
+                100,
+                400,
+                300
+            };
+            SDL_RenderDrawRect(renderer, &menubox);
+        }
+        if(gameState == 2)
+        {
+            SDL_Rect pausebox = 
+            {
+                200,
+                100,
+                400,
+                300
+            };
+            SDL_RenderDrawRect(renderer, &pausebox);
+        }
+
+        
+
+        
+        else if (gameState ==1)
+        {
+            // Centre line
+        for(int y = 0 ; y < 600 ; y+=30)
+        {
+            SDL_Rect dash =
+            {
+                395,
+                y,
+                10,
+                20
+            };
+            SDL_RenderFillRect(renderer, &dash);
+        }
+            SDL_RenderFillRect(renderer,&Left_paddle);
+            SDL_RenderFillRect(renderer,&Right_paddle);
+            SDL_RenderFillRect(renderer,&ball);
+        }
         SDL_RenderPresent(renderer);// draws everthing and displays it .
         SDL_Delay(16);// control frame rate
 
