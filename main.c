@@ -159,6 +159,12 @@ int main(int argc, char *argv[])
 
         int ballVelocityX = 1;
         int ballVelocityY= 1;
+
+        int Left_Score = 0;
+        int Right_Score =0;
+
+        char leftScoreText[10];
+        char rightScoreText[10];
         
     int running = 1;// later running vlaue can be changed to 0 to stop the gameplay loop.
     int gameState = 0; // gamestate .
@@ -218,36 +224,22 @@ int main(int argc, char *argv[])
                         gameState = 1;
                     }
                 }
-                if(gameState == 2 && event.key.keysym.sym == SDLK_BACKSPACE) // to reset the game.
+                if(event.key.keysym.sym == SDLK_BACKSPACE) // to reset the game.
                 {
-                        gameState == 0;
-                    
-                        SDL_Rect ball =
-                        {
-                            350,
-                            250,
-                            20,
-                            20
-                        };
+                    if(gameState == 2)
+                    {
+                    ball.x = 350;
+                    ball.y = 250;
 
-                        ballVelocityX = 1;
-                        ballVelocityY = 1;
+                    Left_paddle.y = 200;
+                    Right_paddle.y = 200;
 
-                        SDL_Rect Left_paddle = 
-                        {
-                            50,
-                            200,
-                            20,
-                            125
-                        };
+                    ballVelocityX = 1;
+                    ballVelocityY = 1;
 
-                        SDL_Rect Right_paddle =
-                        {
-                            725,
-                            200,
-                            20,
-                            125
-                        };
+                    gameState = 1;
+                    }
+
                 }
             }
         }
@@ -339,6 +331,38 @@ int main(int argc, char *argv[])
             {
                 ball.x = Right_paddleLeft - ball.w;
                 ballVelocityX = -ballVelocityX;
+            }
+
+            if(ball.x >= 800)
+            {
+                Left_Score++;
+
+                ball.x = 350;
+                ball.y = 250;
+                
+                Left_paddle.y = 200;
+                Right_paddle.y = 200;
+
+                ballVelocityX = 1;
+                ballVelocityY = 1;
+
+                sprintf(leftScoreText, "%d", Left_Score); // take leftscore , format it as an integer %d and put the result into leftscoretext.
+            }
+
+            if(ball.x <= -20)
+            {
+                Right_Score++;
+
+                ball.x = 350;
+                ball.y = 250;
+
+                Left_paddle.y = 200;
+                Right_paddle.y = 200;
+
+                ballVelocityX = 1;
+                ballVelocityY = 1;
+
+                sprintf(rightScoreText,"%d", Right_Score);
             }
 
         }
