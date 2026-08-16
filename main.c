@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL2/SDL_ttf.h>
 
 int main(int argc, char *argv[])
 //argc stands for argument count Example .\pong easy then argc = 2. tells u how many arguemnts were passed.
-//argv stands for argument vector its an array of strings conatining the arguments passed ,.
+//argv stands for argument vector its an array of strings conatining the arguments passed .
 {
     /* SDL is like a toolbox in which different tools or we can say subsystems are present like audio,
     video , keyboard. SDL_Init means Initilize SDL then SDL_INIT_VIDEO means using the Video subsystem
@@ -14,6 +15,12 @@ int main(int argc, char *argv[])
     if(SDL_Init(SDL_INIT_VIDEO)!=0)
     {
         printf("SDL Initialization Failed!\n");
+        return 1;
+    }
+    if(TTF_Init() == -1)
+    {
+        printf("TTF Initilization Failed! %s\n",TTF_GetError());
+        SDL_Quit();
         return 1;
     }
 
@@ -48,6 +55,79 @@ int main(int argc, char *argv[])
         SDL_Quit();
         return 1;
     }
+
+    // Load Font 
+    TTF_Font *font = TTF_OpenFont("arial.ttf",48);
+    TTF_Font *font1 = TTF_OpenFont("arial.ttf",25);
+
+    SDL_Color white = {255, 255 , 255, 255};
+
+    //Turn the text string into pixels and surface is an image in the ram
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, "PONG" ,white);
+    SDL_Surface *playSurface = TTF_RenderText_Solid(font1, "INSERT COIN TO PLAY" ,white);
+    SDL_Surface *exitSurface = TTF_RenderText_Solid(font1, "PRESS ESC TO EXIT" , white);
+    SDL_Surface *pauseSurface = TTF_RenderText_Solid(font, "PAUSED", white);
+    SDL_Surface *resetSurface = TTF_RenderText_Solid(font1, "PRESS BACKSPACE TO RESET", white);
+
+    //covert pixels/image to texture
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture *playTexture = SDL_CreateTextureFromSurface(renderer, playSurface);
+    SDL_Texture *exitTexture = SDL_CreateTextureFromSurface(renderer, exitSurface);
+    SDL_Texture *pauseTexture = SDL_CreateTextureFromSurface(renderer, pauseSurface);
+    SDL_Texture *resetTexture = SDL_CreateTextureFromSurface(renderer, resetSurface);
+
+    // postion to draw the text
+    SDL_Rect textRect = 
+    {
+        335,
+        100,
+        textSurface->w,
+        textSurface->h
+    };
+
+    SDL_Rect playRect =
+    {
+        275,
+        200,
+        playSurface->w,
+        playSurface->h
+    };
+
+    SDL_Rect exitRect =
+    {
+        285,
+        300,
+        exitSurface->w,
+        exitSurface->h
+    };
+
+    SDL_Rect pauseRect =
+    {
+        315,
+        100,
+        pauseSurface->w,
+        pauseSurface->h
+    };
+
+    SDL_Rect resetRect = 
+    {
+        212,
+        200,
+        resetSurface->w,
+        resetSurface->h
+    };
+
+    if(font == NULL)
+    {
+        printf("Font Error : %s/n",TTF_GetError());
+        return 1;
+    }
+
+    SDL_FreeSurface(textSurface);
+    SDL_FreeSurface(playSurface);
+    SDL_FreeSurface(exitSurface);
+    SDL_FreeSurface(pauseSurface);
+    SDL_FreeSurface(resetSurface);
 
    
         SDL_Rect Left_paddle =
@@ -103,6 +183,20 @@ int main(int argc, char *argv[])
             {
                 running = 0;
             }
+            if(event.type ==SDL_KEYDOWN)
+            {
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    if(gameState == 0)
+                    {
+                        running=0;
+                    }
+                    else if(gameState == 2)
+                    {
+                        running=0;
+                    }
+                }
+            }
 
             if(event.type == SDL_KEYDOWN)
             {
@@ -113,7 +207,7 @@ int main(int argc, char *argv[])
             }
             if(event.type ==SDL_KEYDOWN)
             {
-                if(event.key.keysym.sym == SDLK_ESCAPE)
+                if(event.key.keysym.sym == SDLK_SPACE)
                 {
                     if(gameState == 1)
                     {
@@ -127,6 +221,33 @@ int main(int argc, char *argv[])
                 if(gameState == 2 && event.key.keysym.sym == SDLK_BACKSPACE) // to reset the game.
                 {
                         gameState == 0;
+                    
+                        SDL_Rect ball =
+                        {
+                            350,
+                            250,
+                            20,
+                            20
+                        };
+
+                        ballVelocityX = 1;
+                        ballVelocityY = 1;
+
+                        SDL_Rect Left_paddle = 
+                        {
+                            50,
+                            200,
+                            20,
+                            125
+                        };
+
+                        SDL_Rect Right_paddle =
+                        {
+                            725,
+                            200,
+                            20,
+                            125
+                        };
                 }
             }
         }
@@ -236,6 +357,12 @@ int main(int argc, char *argv[])
                 300
             };
             SDL_RenderDrawRect(renderer, &menubox);
+
+            //here textTexture = the pong image stored as a gpu texture
+            //and textRect = where and how big its supposed to be
+            SDL_RenderCopy(renderer , textTexture , NULL, &textRect);
+            SDL_RenderCopy(renderer, playTexture, NULL, &playRect);
+            SDL_RenderCopy(renderer, exitTexture, NULL, &exitRect);
         }
         if(gameState == 2)
         {
@@ -247,6 +374,9 @@ int main(int argc, char *argv[])
                 300
             };
             SDL_RenderDrawRect(renderer, &pausebox);
+            SDL_RenderCopy(renderer, pauseTexture, NULL, &pauseRect);
+            SDL_RenderCopy(renderer, exitTexture, NULL, &exitRect);
+            SDL_RenderCopy(renderer, resetTexture, NULL, &resetRect);
         }
 
         
